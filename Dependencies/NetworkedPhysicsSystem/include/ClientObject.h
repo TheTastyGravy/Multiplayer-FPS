@@ -10,7 +10,12 @@ class RingBuffer;
 /// </summary>
 struct Input
 {
-	Input();
+	Input() :
+		movement(Vector2Zero()), mouseDelta(Vector2Zero()), mousePos(Vector2Zero()), jump(false), fire(false),
+		bool1(false), bool2(false), bool3(false), bool4(false), bool5(false), bool6(false), bool7(false), bool8(false),
+		float1(0), float2(0), float3(0), float4(0),
+		vec1(Vector3Zero()), vec2(Vector3Zero()), vec3(Vector3Zero()), vec4(Vector3Zero())
+	{}
 
 
 	raylib::Vector2 movement, mouseDelta, mousePos;
@@ -33,7 +38,10 @@ public:
 
 
 	// Appends serialization data to bsInOut, used to create game and client objects on clients
-	virtual void serialize(RakNet::BitStream& bsInOut) const;
+	virtual void serialize(RakNet::BitStream& bsInOut) const
+	{
+		GameObject::serialize(bsInOut);
+	}
 
 
 	// Returns a diference in physics state

@@ -7,8 +7,12 @@
 /// </summary>
 struct PhysicsState
 {
-	PhysicsState();
-	PhysicsState(raylib::Vector3 position, raylib::Vector3 rotation, raylib::Vector3 velocity = { 0,0,0 }, raylib::Vector3 angularVelocity = { 0,0,0 });
+	PhysicsState() :
+		position(0, 0, 0), rotation(0, 0, 0), velocity(0, 0, 0), angularVelocity(0, 0, 0)
+	{}
+	PhysicsState(raylib::Vector3 position, raylib::Vector3 rotation, raylib::Vector3 velocity = { 0,0,0 }, raylib::Vector3 angularVelocity = { 0,0,0 }) :
+		position(position), rotation(rotation), velocity(velocity), angularVelocity(angularVelocity)
+	{}
 
 
 	raylib::Vector3 position;
@@ -70,29 +74,29 @@ public:
 	void applyStateDiff(const PhysicsState& diffState, RakNet::Time stateTime, RakNet::Time currentTime, bool useSmoothing = false, bool shouldUpdateObjectTime = false);
 
 
-	unsigned int getID() const;
+	unsigned int getID() const { return objectID; }
 	// Returns the timestamp of the last update packet applied
-	RakNet::Time getTime() const;
+	RakNet::Time getTime() const { return lastPacketTime; }
 
 	// Returns the current PhysicsState of the object
-	PhysicsState getCurrentState() const;
+	PhysicsState getCurrentState() const { return { position, rotation, velocity, angularVelocity }; }
 
-	raylib::Vector3 getVelocity() const;
-	raylib::Vector3 getAngularVelocity() const;
+	raylib::Vector3 getVelocity() const { return velocity; }
+	raylib::Vector3 getAngularVelocity() const { return angularVelocity; }
 
-	float getMass() const;
-	raylib::Matrix getMoment() const;
-	float getElasticity() const;
+	float getMass() const { return mass; }
+	raylib::Matrix getMoment() const { return moment; }
+	float getElasticity() const { return elasticity; }
 
-	float getlinearDrag() const;
-	float getAngularDrag() const;
+	float getlinearDrag() const { return linearDrag; }
+	float getAngularDrag() const { return angularDrag; }
 
 
 protected:
 	// Event called after resolving a collision. Only called on the server
-	virtual void server_onCollision(StaticObject* other);
+	virtual void server_onCollision(StaticObject* other) {};
 	// Event called after resolving a collision. Only called on clients
-	virtual void client_onCollision(StaticObject* other);
+	virtual void client_onCollision(StaticObject* other) {};
 
 
 

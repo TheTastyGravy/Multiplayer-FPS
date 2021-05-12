@@ -23,7 +23,7 @@ protected:
 	// Used to determine what derived class this collider is
 	int shapeID = -1;
 public:
-	int getShapeID() const;
+	int getShapeID() const { return shapeID; }
 
 	// The total number of shape IDs in use
 	static const int SHAPE_COUNT = 2;

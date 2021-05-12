@@ -60,7 +60,7 @@ protected:
 	virtual ClientObject* clientObjectFactory(unsigned int typeID, ObjectInfo& objectInfo, RakNet::BitStream& bsIn) = 0;
 
 
-	unsigned int getClientID() const;
+	unsigned int getClientID() const { return clientID; }
 
 private:
 	// Read a collider from a bit stream. Instantiated with new
