@@ -152,7 +152,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CustomServer.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CustomServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -18,6 +18,15 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PlayerObject.cpp" />
+    <ClCompile Include="Rocket.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CustomGameMessages.h" />
+    <ClInclude Include="PlayerObject.h" />
+    <ClInclude Include="Rocket.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{00B23AAA-290C-4921-A845-75CA433F42BD}</ProjectGuid>
