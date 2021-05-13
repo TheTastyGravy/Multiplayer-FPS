@@ -89,6 +89,9 @@ protected:
 	std::unordered_map<unsigned long, unsigned int> addressToClientID;
 
 private:
+	// Object IDs to be destroied at the end of this update
+	std::vector<unsigned int> deadObjects;
+
 	// Time in milliseconds. Multiply by 0.001 for seconds
 	RakNet::Time lastUpdateTime;
 

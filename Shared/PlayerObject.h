@@ -1,6 +1,7 @@
 #pragma once
 #include "ClientObject.h"
 #include "IDrawable.h"
+#include "Server.h"
 
 
 class PlayerObject : public ClientObject, public IDrawable
@@ -21,6 +22,9 @@ public:
 	void update(float deltaTime);
 	virtual void draw() const override;
 
+	
+	void setServer(Server* server) { this->server = server; }
+
 protected:
 	virtual void server_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) override;
 	virtual void client_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) override;
@@ -38,4 +42,6 @@ protected:
 	float moveAcceleration = 1;
 	float mouseAccelX = 0.002f;
 	float mouseAccely = 0.002f;
+
+	Server* server;
 };

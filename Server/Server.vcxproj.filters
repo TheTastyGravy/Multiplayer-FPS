@@ -21,6 +21,9 @@
     <ClCompile Include="CustomServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RocketCollisionServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomServer.h">

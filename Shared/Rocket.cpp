@@ -1,4 +1,5 @@
 #include "Rocket.h"
+#include "../Server/CustomServer.h"
 
 
 Rocket::Rocket(PhysicsState initState, unsigned int objectID, Collider* collider, float explosionRadius, float damage) : 
@@ -27,15 +28,6 @@ void Rocket::draw() const
 }
 
 
-
-void Rocket::server_onCollision(StaticObject * other, raylib::Vector3 contact, raylib::Vector3 normal)
-{
-	//find client objects within radius
-	//	do damage with falloff
-	//	apply force away from current pos, with falloff
-
-	//destroy this instance
-}
 
 void Rocket::client_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
 {

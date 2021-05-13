@@ -5,13 +5,13 @@
 
 
 PlayerObject::PlayerObject(unsigned int clientID) :
-	ClientObject(PhysicsState(), clientID, 1, .3f), health(100), color(RED), groundContacts(0)
+	ClientObject(PhysicsState(), clientID, 1, .3f), health(100), color(RED), groundContacts(0), server(nullptr)
 {
 	typeID = 2000;
 }
 
 PlayerObject::PlayerObject(PhysicsState initState, unsigned int clientID, Collider* collider, float health, raylib::Color color, float friction) :
-	ClientObject(initState, clientID, 1, .3f, collider, 0, 1, friction), health(health), color(color), groundContacts(0)
+	ClientObject(initState, clientID, 1, .3f, collider, 0, 1, friction), health(health), color(color), groundContacts(0), server(nullptr)
 {
 	typeID = 2000;
 }
@@ -71,7 +71,32 @@ PhysicsState PlayerObject::processInputMovement(const Input& input) const
 
 void PlayerObject::processInputAction(const Input& input, RakNet::Time timeStamp)
 {
-	//if fire is true, create rocket on server in the direction the player is facing
+	// Only perform actions when the server can be acessed
+	if (!server)
+	{
+		return;
+	}
+
+
+	if (input.fire)
+	{
+		//find direction player is facing
+		float x, y;
+		x = getRotation().y - PI * 0.5f;
+		y = -getRotation().z;
+		raylib::Vector3 forward(cos(y) * cos(x), sin(y), cos(y) * sin(x));
+
+		PhysicsState state;
+		state.position = position + forward * 6;	//create it infront of the player
+		state.velocity = forward * 20;
+
+
+		RakNet::BitStream bs;
+		bs.Write(10.f);	//radius
+		bs.Write(50.f);	//damage
+
+		server->createObject(1000, state, timeStamp, &bs);
+	}
 }
 
 

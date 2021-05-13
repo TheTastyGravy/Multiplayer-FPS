@@ -43,6 +43,13 @@ void CustomServer::startup(const char* ip, unsigned short port)
 	staticObjects.push_back(new WorldObject({ -5,0,5 }, Vector3Zero(), RED, new Sphere(3)));
 	staticObjects.push_back(new WorldObject({ 5,0,-5 }, Vector3Zero(), YELLOW, new Sphere(3)));
 	staticObjects.push_back(new WorldObject({ -5,0,-5 }, Vector3Zero(), PURPLE, new Sphere(3)));
+
+
+
+	spawnPositions.push_back({ 30, -10, 30 });
+	spawnPositions.push_back({ -30, -10, 30 });
+	spawnPositions.push_back({ 30, -10, -30 });
+	spawnPositions.push_back({ -30, -10, -30 });
 }
 
 void CustomServer::update()
@@ -77,6 +84,31 @@ void CustomServer::update()
 }
 
 
+void CustomServer::createExplosion(const raylib::Vector3& center, float radius, float damage)
+{
+	for (auto& it : clientObjects)
+	{
+		raylib::Vector3 dir = it.second->getPosition() - center;
+		float dist = dir.Length();
+
+		// Players should all have spheres, so subtract the radius to get dist to closest point
+		Sphere* col = dynamic_cast<Sphere*>(it.second->getCollider());
+		if (col)
+		{
+			dist -= col->getRadius();
+		}
+
+
+		if (dist < radius)
+		{
+			it.second->applyForce(dir.Normalize() * 10, Vector3Zero());
+
+			//damage
+		}
+	}
+}
+
+
 
 GameObject* CustomServer::gameObjectFactory(unsigned int typeID, unsigned int objectID, const PhysicsState& state, RakNet::BitStream& bsIn)
 {
@@ -88,8 +120,9 @@ GameObject* CustomServer::gameObjectFactory(unsigned int typeID, unsigned int ob
 		bsIn.Read(radius);
 		bsIn.Read(damage);
 
-		Sphere* col = new Sphere(.5f);
-		return new Rocket(state, objectID, col, radius, damage);
+		Rocket* obj = new Rocket(state, objectID, new Sphere(.5f), radius, damage);
+		obj->setServer(this);
+		return obj;
 	}
 
 
@@ -103,9 +136,7 @@ GameObject* CustomServer::gameObjectFactory(unsigned int typeID, unsigned int ob
 
 ClientObject* CustomServer::clientObjectFactory(unsigned int clientID)
 {
-	//this should eventualy use a random point that is not close to any other players
-
-	//give each client a diferent color
+	// Get a color for the client
 	raylib::Color color;
 	switch (clientID % 4)
 	{
@@ -123,5 +154,32 @@ ClientObject* CustomServer::clientObjectFactory(unsigned int clientID)
 		break;
 	}
 
-	return new PlayerObject(PhysicsState({ 0,10,0 }, { 0,0,0 }), clientID, new Sphere(5), 100, color, 0.3f);
+	// Get a spawn position
+	raylib::Vector3 spawnPos;
+	for (auto& pos : spawnPositions)
+	{
+		// Check if any other clients are close to the spawn point
+		bool isFree = true;
+		for (auto& obj : clientObjects)
+		{
+			if (pos.Distance(obj.second->getPosition()) < 15)
+			{
+				isFree = false;
+				break;
+			}
+		}
+
+		// No clients are close, so use it
+		if (isFree)
+		{
+			spawnPos = pos;
+			break;
+		}
+	}
+
+
+	PlayerObject* obj = new PlayerObject(PhysicsState(spawnPos, { 0,0,0 }), clientID, new Sphere(5), 100, color, .7f);
+	obj->setServer(this);
+
+	return obj;
 }

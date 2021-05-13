@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObject.h"
 #include "IDrawable.h"
+#include "Server.h"
 
 
 class Rocket : public GameObject, public IDrawable
@@ -16,8 +17,10 @@ public:
 	virtual void draw() const override;
 
 
+	void setServer(Server* server) { this->server = server; }
+
 protected:
-	virtual void server_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) override;
+	virtual void server_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) override;	// Defined seperatly for client and server
 	virtual void client_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) override;
 
 
@@ -25,4 +28,7 @@ protected:
 protected:
 	float explosionRadius;
 	float damage;
+
+
+	Server* server;
 };
