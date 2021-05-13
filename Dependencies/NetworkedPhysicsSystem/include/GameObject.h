@@ -29,8 +29,8 @@ class GameObject : public StaticObject
 {
 public:
 	GameObject();
-	GameObject(raylib::Vector3 position, raylib::Vector3 rotation, unsigned int objectID, float mass, float elasticity, Collider* collider = nullptr, float linearDrag = 0, float angularDrag = 0);
-	GameObject(PhysicsState initState, unsigned int objectID, float mass, float elasticity, Collider* collider = nullptr, float linearDrag = 0, float angularDrag = 0);
+	GameObject(raylib::Vector3 position, raylib::Vector3 rotation, unsigned int objectID, float mass, float elasticity, Collider* collider = nullptr, float linearDrag = 0, float angularDrag = 0, float friction = 1);
+	GameObject(PhysicsState initState, unsigned int objectID, float mass, float elasticity, Collider* collider = nullptr, float linearDrag = 0, float angularDrag = 0, float friction = 1);
 
 	// Appends serialization data to bsInOut, used to create game objects on clients
 	virtual void serialize(RakNet::BitStream& bsInOut) const override;
@@ -90,13 +90,14 @@ public:
 
 	float getlinearDrag() const { return linearDrag; }
 	float getAngularDrag() const { return angularDrag; }
+	float getFriction() const { return friction; }
 
 
 protected:
 	// Event called after resolving a collision. Only called on the server
-	virtual void server_onCollision(StaticObject* other) {};
+	virtual void server_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) {};
 	// Event called after resolving a collision. Only called on clients
-	virtual void client_onCollision(StaticObject* other) {};
+	virtual void client_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) {};
 
 
 
@@ -125,4 +126,5 @@ protected:
 
 	float linearDrag;
 	float angularDrag;
+	float friction;
 };

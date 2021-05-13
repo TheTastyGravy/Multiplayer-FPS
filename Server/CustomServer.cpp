@@ -51,8 +51,7 @@ void CustomServer::update()
 	}
 
 
-	float deltaTime = (RakNet::GetTime() - time) * 0.001f;
-	time = RakNet::GetTime();
+	float deltaTime = (RakNet::GetTime() - Server::getTime()) * 0.001f;
 
 	//update client objects. this needs to be done before system update because this resets contact points
 	for (auto& it : clientObjects)
@@ -99,5 +98,5 @@ ClientObject* CustomServer::clientObjectFactory(unsigned int clientID)
 {
 	//this should eventualy use a random point that is not close to any other players
 
-	return new PlayerObject(PhysicsState({ 0,10,0 }, { 0,0,0 }), clientID, new Sphere(5));
+	return new PlayerObject(PhysicsState({ 0,10,0 }, { 0,0,0 }), clientID, new Sphere(5), 0.3f);
 }

@@ -137,7 +137,7 @@ GameObject* CustomClient::gameObjectFactory(unsigned int typeID, unsigned int ob
 	{
 		float health;
 		bsIn.Read(health);
-		return new PlayerObject(objectInfo.state, objectID, objectInfo.collider, health);
+		return new PlayerObject(objectInfo.state, objectID, objectInfo.collider, health, objectInfo.friction);
 	}
 
 
@@ -152,5 +152,5 @@ ClientObject* CustomClient::clientObjectFactory(unsigned int typeID, ObjectInfo&
 	// We only have one client object type, so just use it
 	float health;
 	bsIn.Read(health);
-	return new PlayerObject(objectInfo.state, getClientID(), objectInfo.collider, health);
+	return new PlayerObject(objectInfo.state, getClientID(), objectInfo.collider, health, objectInfo.friction);
 }

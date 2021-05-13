@@ -33,7 +33,7 @@ protected:
 		PhysicsState state;
 		// The objects collider, or null pointer if it doesnt have one
 		Collider* collider = nullptr;
-		float mass = 1, elasticity = 1;
+		float mass = 1, elasticity = 1, friction = 1;
 	};
 	
 	/// <summary>
@@ -61,6 +61,7 @@ protected:
 
 
 	unsigned int getClientID() const { return clientID; }
+	RakNet::Time getTime() const { return lastUpdateTime; }
 
 private:
 	// Read a collider from a bit stream. Instantiated with new

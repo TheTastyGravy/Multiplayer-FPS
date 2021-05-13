@@ -21,7 +21,7 @@ void Rocket::serialize(RakNet::BitStream & bsInOut) const
 
 
 
-void Rocket::server_onCollision(StaticObject * other)
+void Rocket::server_onCollision(StaticObject * other, raylib::Vector3 contact, raylib::Vector3 normal)
 {
 	//find client objects within radius
 	//	do damage with falloff
@@ -30,7 +30,7 @@ void Rocket::server_onCollision(StaticObject * other)
 	//destroy this instance
 }
 
-void Rocket::client_onCollision(StaticObject* other)
+void Rocket::client_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
 {
 	//create effect or something
 

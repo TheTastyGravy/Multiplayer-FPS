@@ -18,6 +18,4 @@ protected:
 
 
 
-	//temp to store the last time. a getter should be added to server
-	RakNet::Time time;
 };

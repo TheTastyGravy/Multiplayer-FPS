@@ -33,8 +33,8 @@ class ClientObject : public GameObject
 {
 public:
 	ClientObject();
-	ClientObject(raylib::Vector3 position, raylib::Vector3 rotation, unsigned int clientID, float mass, float elasticity, Collider* collider = nullptr);
-	ClientObject(PhysicsState initState, unsigned int clientID, float mass, float elasticity, Collider* collider = nullptr);
+	ClientObject(raylib::Vector3 position, raylib::Vector3 rotation, unsigned int clientID, float mass, float elasticity, Collider* collider = nullptr, float linearDrag = 0, float angularDrag = 0, float friction = 1);
+	ClientObject(PhysicsState initState, unsigned int clientID, float mass, float elasticity, Collider* collider = nullptr, float linearDrag = 0, float angularDrag = 0, float friction = 1);
 
 
 	// Appends serialization data to bsInOut, used to create game and client objects on clients

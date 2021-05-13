@@ -13,8 +13,8 @@ public:
 
 
 protected:
-	virtual void server_onCollision(StaticObject* other) override;
-	virtual void client_onCollision(StaticObject* other) override;
+	virtual void server_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) override;
+	virtual void client_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) override;
 
 
 

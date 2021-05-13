@@ -52,6 +52,9 @@ protected:
 	/// <returns>A pointer to the new client object</returns>
 	virtual ClientObject* clientObjectFactory(unsigned int clientID) = 0;
 
+
+	RakNet::Time getTime() const { return lastUpdateTime; }
+
 private:
 	// Check for collisions and resolve them
 	void collisionDetectionAndResolution();
