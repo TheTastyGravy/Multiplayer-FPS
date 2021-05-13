@@ -11,7 +11,7 @@ PlayerObject::PlayerObject(unsigned int clientID) :
 }
 
 PlayerObject::PlayerObject(PhysicsState initState, unsigned int clientID, Collider* collider, float health, raylib::Color color, float friction) :
-	ClientObject(initState, clientID, 1, .3f, collider, 0, 1, friction), health(health), color(color), groundContacts(0), server(nullptr)
+	ClientObject(initState, clientID, 1, .3f, collider, 0, 1, friction, true), health(health), color(color), groundContacts(0), server(nullptr)
 {
 	typeID = 2000;
 }
@@ -87,7 +87,7 @@ void PlayerObject::processInputAction(const Input& input, RakNet::Time timeStamp
 		raylib::Vector3 forward(cos(y) * cos(x), sin(y), cos(y) * sin(x));
 
 		PhysicsState state;
-		state.position = position + forward * 6;	//create it infront of the player
+		state.position = position + forward * 3.5f;	//create it infront of the player
 		state.velocity = forward * 20;
 
 

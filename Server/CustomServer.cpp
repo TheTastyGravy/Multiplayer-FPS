@@ -101,7 +101,7 @@ void CustomServer::createExplosion(const raylib::Vector3& center, float radius, 
 
 		if (dist < radius)
 		{
-			it.second->applyForce(dir.Normalize() * 10, Vector3Zero());
+			it.second->applyForce(dir.Normalize() * 20, Vector3Zero());
 
 			//damage
 		}

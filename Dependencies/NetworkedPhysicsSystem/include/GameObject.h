@@ -29,8 +29,8 @@ class GameObject : public StaticObject
 {
 public:
 	GameObject();
-	GameObject(raylib::Vector3 position, raylib::Vector3 rotation, unsigned int objectID, float mass, float elasticity, Collider* collider = nullptr, float linearDrag = 0, float angularDrag = 0, float friction = 1);
-	GameObject(PhysicsState initState, unsigned int objectID, float mass, float elasticity, Collider* collider = nullptr, float linearDrag = 0, float angularDrag = 0, float friction = 1);
+	GameObject(raylib::Vector3 position, raylib::Vector3 rotation, unsigned int objectID, float mass, float elasticity, Collider* collider = nullptr, float linearDrag = 0, float angularDrag = 0, float friction = 1, bool lockRotation = false);
+	GameObject(PhysicsState initState, unsigned int objectID, float mass, float elasticity, Collider* collider = nullptr, float linearDrag = 0, float angularDrag = 0, float friction = 1, bool lockRotation = false);
 
 	// Appends serialization data to bsInOut, used to create game objects on clients
 	virtual void serialize(RakNet::BitStream& bsInOut) const override;
@@ -127,4 +127,6 @@ protected:
 	float linearDrag;
 	float angularDrag;
 	float friction;
+
+	bool lockRotation;
 };
