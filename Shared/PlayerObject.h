@@ -1,12 +1,13 @@
 #pragma once
 #include "ClientObject.h"
+#include "IDrawable.h"
 
 
-class PlayerObject : public ClientObject
+class PlayerObject : public ClientObject, public IDrawable
 {
 public:
 	PlayerObject(unsigned int clientID);
-	PlayerObject(PhysicsState initState, unsigned int clientID, Collider* collider = nullptr, float health = 100, float friction = 1);
+	PlayerObject(PhysicsState initState, unsigned int clientID, Collider* collider = nullptr, float health = 100, raylib::Color color = RED, float friction = 1);
 	virtual ~PlayerObject();
 
 
@@ -18,7 +19,7 @@ public:
 
 
 	void update(float deltaTime);
-	void draw();
+	virtual void draw() const override;
 
 protected:
 	virtual void server_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) override;
@@ -28,6 +29,7 @@ protected:
 
 protected:
 	float health;
+	raylib::Color color;
 
 	unsigned int groundContacts;
 

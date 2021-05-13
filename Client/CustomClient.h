@@ -12,7 +12,7 @@ public:
 	void startup(const char* ip, unsigned short port);
 
 	void update();
-	void draw();
+	void draw(raylib::Camera3D& cam);
 
 
 protected:

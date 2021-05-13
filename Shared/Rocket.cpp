@@ -21,6 +21,13 @@ void Rocket::serialize(RakNet::BitStream & bsInOut) const
 
 
 
+void Rocket::draw() const
+{
+	DrawSphere(position, 1, RED);
+}
+
+
+
 void Rocket::server_onCollision(StaticObject * other, raylib::Vector3 contact, raylib::Vector3 normal)
 {
 	//find client objects within radius

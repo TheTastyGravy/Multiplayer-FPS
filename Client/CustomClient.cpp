@@ -1,6 +1,8 @@
 #include "CustomClient.h"
+#include <GetTime.h>
 #include "../Shared/PlayerObject.h"
 #include "../Shared/Rocket.h"
+#include "../Shared/WorldObject.h"
 
 #include <iostream>
 
@@ -36,7 +38,7 @@ void CustomClient::startup(const char* ip, unsigned short port)
 
 
 	//lock the cursor
-	//DisableCursor();
+	DisableCursor();
 	lastMousePos = GetMousePosition();
 }
 
@@ -51,33 +53,48 @@ void CustomClient::update()
 		//custom messages
 	}
 
+	float deltaTime = (RakNet::GetTime() - Client::getTime()) * 0.001f;
 
 	Client::systemUpdate();
+
 
 	//client side logic
 
 	if (myClientObject)
-		((PlayerObject*)myClientObject)->update(1/60.f);
+		((PlayerObject*)myClientObject)->update(deltaTime);
 }
 
-void CustomClient::draw()
+void CustomClient::draw(raylib::Camera3D& cam)
 {
+	// Draw static and game objects through the IDrawable interface
 	for (auto& it : staticObjects)
 	{
-		//draw static object using its collider, or make a custom class to do it
+		IDrawable* drawObj = dynamic_cast<IDrawable*>(it);
+		if (drawObj)
+		{
+			drawObj->draw();
+		}
 	}
-
 	for (auto& it : gameObjects)
 	{
-		//game objects include other players, so try to cast to multiple types
+		IDrawable* drawObj = dynamic_cast<IDrawable*>(it.second);
+		if (drawObj)
+		{
+			drawObj->draw();
+		}
 	}
 
 
-	// If we have a client object, draw it
+	// If we have a client object, update the camera for first person
 	if (myClientObject)
 	{
-		//the camera should be moved to the players position and rotated to the direction their facing
-		((PlayerObject*)myClientObject)->draw();
+		cam.SetPosition(myClientObject->getPosition());
+
+		float x, y;
+		x = myClientObject->getRotation().y - PI * 0.5f;
+		y = -myClientObject->getRotation().z;
+		raylib::Vector3 forward(cos(y) * cos(x), sin(y), cos(y) * sin(x));
+		cam.SetTarget(myClientObject->getPosition() + forward);
 	}
 }
 
@@ -91,8 +108,9 @@ Input CustomClient::getInput()
 	input.fire = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 	input.jump = IsKeyPressed(KEY_SPACE);
 
-	input.mouseDelta = (-lastMousePos) + GetMousePosition();
-	lastMousePos = GetMousePosition();
+	input.mousePos = GetMousePosition();
+	input.mouseDelta = (-lastMousePos) + input.mousePos;
+	lastMousePos = input.mousePos;
 
 	input.movement.y -= IsKeyDown(KEY_W);
 	input.movement.y += IsKeyDown(KEY_S);
@@ -110,7 +128,12 @@ StaticObject* CustomClient::staticObjectFactory(unsigned int typeID, ObjectInfo&
 	case 0:
 		// Use default static object
 		return new StaticObject(objectInfo.state.position, objectInfo.state.rotation, objectInfo.collider);
-
+	case 1:
+	{
+		raylib::Color color;
+		bsIn.Read(color);
+		return new WorldObject(objectInfo.state.position, objectInfo.state.rotation, color, objectInfo.collider);
+	}
 
 
 
@@ -136,8 +159,10 @@ GameObject* CustomClient::gameObjectFactory(unsigned int typeID, unsigned int ob
 	case 2000:
 	{
 		float health;
+		raylib::Color color;
 		bsIn.Read(health);
-		return new PlayerObject(objectInfo.state, objectID, objectInfo.collider, health, objectInfo.friction);
+		bsIn.Read(color);
+		return new PlayerObject(objectInfo.state, objectID, objectInfo.collider, health, color, objectInfo.friction);
 	}
 
 
@@ -151,6 +176,8 @@ ClientObject* CustomClient::clientObjectFactory(unsigned int typeID, ObjectInfo&
 {
 	// We only have one client object type, so just use it
 	float health;
+	raylib::Color color;
 	bsIn.Read(health);
-	return new PlayerObject(objectInfo.state, getClientID(), objectInfo.collider, health, objectInfo.friction);
+	bsIn.Read(color);
+	return new PlayerObject(objectInfo.state, getClientID(), objectInfo.collider, health, color, objectInfo.friction);
 }

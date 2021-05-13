@@ -20,7 +20,7 @@ int main()
 		ClearBackground(RAYWHITE);
 		BeginMode3D(cam);
 
-		client.draw();
+		client.draw(cam);
 
 		EndMode3D();
 		DrawFPS(10, 10);

@@ -1,16 +1,17 @@
 #include "PlayerObject.h"
+#include "Sphere.h"
 
 #include <iostream>
 
 
 PlayerObject::PlayerObject(unsigned int clientID) :
-	ClientObject(PhysicsState(), clientID, 1, .3f), health(100), groundContacts(0)
+	ClientObject(PhysicsState(), clientID, 1, .3f), health(100), color(RED), groundContacts(0)
 {
 	typeID = 2000;
 }
 
-PlayerObject::PlayerObject(PhysicsState initState, unsigned int clientID, Collider* collider, float health, float friction) : 
-	ClientObject(initState, clientID, 1, .3f, collider, 0, 0, friction), health(health), groundContacts(0)
+PlayerObject::PlayerObject(PhysicsState initState, unsigned int clientID, Collider* collider, float health, raylib::Color color, float friction) :
+	ClientObject(initState, clientID, 1, .3f, collider, 0, 1, friction), health(health), color(color), groundContacts(0)
 {
 	typeID = 2000;
 }
@@ -25,6 +26,7 @@ void PlayerObject::serialize(RakNet::BitStream& bsInOut) const
 {
 	ClientObject::serialize(bsInOut);
 	bsInOut.Write(health);
+	bsInOut.Write(color);
 }
 
 
@@ -79,7 +81,7 @@ void PlayerObject::update(float deltaTime)
 	//gravity
 	applyForce(raylib::Vector3(0, -15, 0) * getMass() * deltaTime, Vector3Zero());
 
-	//do not roll. if we roll, friction will not slow us down
+	//do not roll. if we roll, friction will not slow us down	TEMP
 	angularVelocity = Vector3Zero();
 
 
@@ -93,9 +95,13 @@ void PlayerObject::update(float deltaTime)
 	}
 }
 
-void PlayerObject::draw()
+void PlayerObject::draw() const
 {
-	DrawSphere(position, 5, RED);
+	Sphere* sphere = dynamic_cast<Sphere*>(getCollider());
+	if (!sphere)
+		return;
+
+	DrawSphere(position, sphere->getRadius(), color);
 }
 
 

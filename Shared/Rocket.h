@@ -1,8 +1,9 @@
 #pragma once
 #include "GameObject.h"
+#include "IDrawable.h"
 
 
-class Rocket : public GameObject
+class Rocket : public GameObject, public IDrawable
 {
 public:
 	Rocket(PhysicsState initState, unsigned int objectID, Collider* collider = nullptr, float explosionRadius = 10, float damage = 1);
@@ -10,6 +11,9 @@ public:
 
 
 	virtual void serialize(RakNet::BitStream& bsInOut) const override;
+
+
+	virtual void draw() const override;
 
 
 protected:
