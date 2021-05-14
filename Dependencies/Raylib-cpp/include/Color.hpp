@@ -151,7 +151,7 @@ class Color : public ::Color {
     }
 
     inline Color& DrawText(const std::string& text, int posX, int posY, int fontSize) {
-        ::DrawText(text.c_str(), posX, posY, fontSize, *this);
+        ::RayDrawText(text.c_str(), posX, posY, fontSize, *this);
         return *this;
     }
 

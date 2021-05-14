@@ -2681,10 +2681,10 @@ void DrawBillboardRec(Camera camera, Texture2D texture, Rectangle source, Vector
     Matrix matView = MatrixLookAt(camera.position, camera.target, camera.up);
 
     Vector3 right = { matView.m0, matView.m4, matView.m8 };
-    //Vector3 up = { matView.m1, matView.m5, matView.m9 };
+    Vector3 up = { matView.m1, matView.m5, matView.m9 };
 
     // NOTE: Billboard locked on axis-Y
-    Vector3 up = { 0.0f, 1.0f, 0.0f };
+    //Vector3 up = { 0.0f, 1.0f, 0.0f };
 /*
     a-------b
     |       |

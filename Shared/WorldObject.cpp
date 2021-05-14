@@ -22,7 +22,6 @@ WorldObject::~WorldObject()
 void WorldObject::serialize(RakNet::BitStream & bsInOut) const
 {
 	StaticObject::serialize(bsInOut);
-
 	bsInOut.Write(color);
 }
 
@@ -32,7 +31,7 @@ void WorldObject::draw() const
 	Sphere* sphere = dynamic_cast<Sphere*>(getCollider());
 	OBB* obb = dynamic_cast<OBB*>(getCollider());
 
-	//how the object is drawn is dependant on its collider
+	// Draw the object using its collider
 	if (sphere)
 	{
 		DrawSphere(position, sphere->getRadius(), color);

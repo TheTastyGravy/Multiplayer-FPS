@@ -1,17 +1,15 @@
 #include "PlayerObject.h"
 #include "Sphere.h"
 
-#include <iostream>
-
 
 PlayerObject::PlayerObject(unsigned int clientID) :
-	ClientObject(PhysicsState(), clientID, 1, .3f), health(100), color(RED), groundContacts(0), server(nullptr)
+	ClientObject(PhysicsState(), clientID, 1, .3f), health(100), color(RED), server(nullptr)
 {
 	typeID = 2000;
 }
 
 PlayerObject::PlayerObject(PhysicsState initState, unsigned int clientID, Collider* collider, float health, raylib::Color color, float friction) :
-	ClientObject(initState, clientID, 1, .3f, collider, 0, 1, friction, true), health(health), color(color), groundContacts(0), server(nullptr)
+	ClientObject(initState, clientID, 1, .3f, collider, 0, 1, friction, true), health(health), color(color), server(nullptr)
 {
 	typeID = 2000;
 }
@@ -19,7 +17,6 @@ PlayerObject::PlayerObject(PhysicsState initState, unsigned int clientID, Collid
 PlayerObject::~PlayerObject()
 {
 }
-
 
 
 void PlayerObject::serialize(RakNet::BitStream& bsInOut) const
@@ -30,121 +27,111 @@ void PlayerObject::serialize(RakNet::BitStream& bsInOut) const
 }
 
 
-
 PhysicsState PlayerObject::processInputMovement(const Input& input) const
 {
 	PhysicsState diff;
 
-	raylib::Vector3 desieredVel = { input.movement.x, 0, input.movement.y };
-	desieredVel *= moveAcceleration;
-
-	//rotate desiered vel to match facing direction
-	desieredVel = desieredVel.Transform(MatrixRotateY(rotation.y));
-
-	//get velocity without y component
-	raylib::Vector3 planarVel = getVelocity();
-	planarVel.y = 0;
-
-	//input not zero and total over speed cap
-	if (!(desieredVel.x == 0 && desieredVel.z == 0) && (planarVel + desieredVel).Length() > moveSpeedCap)
+	// Use the mouse position to rotate the object, clamping vertical
+	diff.rotation = raylib::Vector3(0, input.mousePos.x * mouseAccelX, Clamp(input.mousePos.y * mouseAccelY, -PI * .45f, PI * .45f)) - rotation;
+	// A dead player can only look around
+	if (isDead())
 	{
-		//dont go over the cap, but allow change in direction
-		desieredVel = (desieredVel + planarVel).Normalize() * moveSpeedCap - planarVel;
+		return diff;
 	}
 
 
-	//jump
-	if (groundContacts > 0 && input.jump)
+	// Use input rotated to the direction the player is facing
+	raylib::Vector3 desieredVel = { input.movement.x, 0, input.movement.y };
+	desieredVel *= moveAcceleration;
+	desieredVel = desieredVel.Transform(MatrixRotateY(rotation.y));
+
+	// Ignore the Y component
+	raylib::Vector3 planarVel = getVelocity();
+	planarVel.y = 0;
+
+	// If there is input and we are over the speed cap
+	if (!(desieredVel.x == 0 && desieredVel.z == 0) && (planarVel + desieredVel).Length() > moveSpeedCap)
 	{
-		desieredVel.y = 20 + getVelocity().y;
+		// Use the combined direction at the move speed
+		desieredVel = (desieredVel + planarVel).Normalize() * moveSpeedCap - planarVel;
+	}
+
+	// If on the ground and jumping, jump
+	if (groundTimmer > 0 && input.jump)
+	{
+		desieredVel.y = 13 - velocity.y;
 	}
 
 
 	diff.velocity = desieredVel;
-
-	//use mouse delta to rotate
-	diff.rotation = { 0, input.mouseDelta.x * mouseAccelX, input.mouseDelta.y * mouseAccely };
-
-
 	return diff;
 }
-
-void PlayerObject::processInputAction(const Input& input, RakNet::Time timeStamp)
-{
-	// Only perform actions when the server can be acessed
-	if (!server)
-	{
-		return;
-	}
-
-
-	if (input.fire)
-	{
-		//find direction player is facing
-		float x, y;
-		x = getRotation().y - PI * 0.5f;
-		y = -getRotation().z;
-		raylib::Vector3 forward(cos(y) * cos(x), sin(y), cos(y) * sin(x));
-
-		PhysicsState state;
-		state.position = position + forward * 3.5f;	//create it infront of the player
-		state.velocity = forward * 20;
-
-
-		RakNet::BitStream bs;
-		bs.Write(10.f);	//radius
-		bs.Write(50.f);	//damage
-
-		server->createObject(1000, state, timeStamp, &bs);
-	}
-}
-
 
 
 void PlayerObject::update(float deltaTime)
 {
-	//gravity
-	applyForce(raylib::Vector3(0, -15, 0) * getMass() * deltaTime, Vector3Zero());
-
-	//do not roll. if we roll, friction will not slow us down	TEMP
-	angularVelocity = Vector3Zero();
+	// Apply gravity. This is a bad place for it, as if no inputs are receved by the server for a while, delta 
+	// time will build up and can cause the player to fall through the ground
+	applyForce(raylib::Vector3(0, -30, 0) * getMass() * deltaTime, Vector3Zero());
 
 
-	//reset contacts
-	groundContacts = 0;
-
-
-	if (health <= 0)
-	{
-		//die
-	}
+	// Decrement the timmer
+	groundTimmer -= deltaTime;
 }
 
 void PlayerObject::draw() const
 {
+	if (isDead())
+	{
+		return;
+	}
+
+
+	// Draw the player using their sphere collider
 	Sphere* sphere = dynamic_cast<Sphere*>(getCollider());
 	if (!sphere)
+	{
 		return;
-
+	}
+	
 	DrawSphere(position, sphere->getRadius(), color);
 }
 
 
+void PlayerObject::dealDamage(float damage)
+{
+	health -= damage;
+
+	// Dont let health go negitive
+	if (health < 0)
+	{
+		health = 0;
+	}
+}
+
+void PlayerObject::respawn(raylib::Vector3 position)
+{
+	// Reset the player
+	health = 100;
+	this->position = position;
+	velocity = Vector3Zero();
+}
+
 
 void PlayerObject::server_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
 {
-	//if the collision normal is close to down, we are on ground
+	// If the collision normal is close to down, we are on ground
 	if (normal.y < -0.85f)
 	{
-		groundContacts += 1;
+		groundTimmer = 0.1f;
 	}
 }
 
 void PlayerObject::client_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
 {
-	//if the collision normal is close to down, we are on ground
+	// If the collision normal is close to down, we are on ground
 	if (normal.y < -0.85f)
 	{
-		groundContacts += 1;
+		groundTimmer = 0.1f;
 	}
 }

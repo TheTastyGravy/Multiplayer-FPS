@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="CustomServer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PlayerActionServer.cpp" />
     <ClCompile Include="RocketCollisionServer.cpp" />
   </ItemGroup>
   <ItemGroup>

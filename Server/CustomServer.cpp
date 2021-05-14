@@ -2,9 +2,18 @@
 #include "../Shared/PlayerObject.h"
 #include "../Shared/Rocket.h"
 #include "../Shared/WorldObject.h"
+#include "../Shared/CustomGameMessages.h"
 
 #include <iostream>
 
+
+CustomServer::CustomServer() :
+	Server(0.02f)
+{}
+
+CustomServer::~CustomServer()
+{
+}
 
 
 void CustomServer::startup(const char* ip, unsigned short port)
@@ -34,18 +43,19 @@ void CustomServer::startup(const char* ip, unsigned short port)
 
 
 
-	//create static objects
+	// Ground
+	staticObjects.push_back(new WorldObject({ 0,-20,0 }, Vector3Zero(), GREEN, new OBB({ 100, 5, 100 })));
 
-	//floor
-	staticObjects.push_back(new WorldObject({ 0,-20,0 }, Vector3Zero(), GREEN, new OBB({ 100, 2, 100 })));
-
+	// Random spheres in the sky
 	staticObjects.push_back(new WorldObject({ 5,0,5 }, Vector3Zero(), BLUE, new Sphere(3)));
 	staticObjects.push_back(new WorldObject({ -5,0,5 }, Vector3Zero(), RED, new Sphere(3)));
 	staticObjects.push_back(new WorldObject({ 5,0,-5 }, Vector3Zero(), YELLOW, new Sphere(3)));
 	staticObjects.push_back(new WorldObject({ -5,0,-5 }, Vector3Zero(), PURPLE, new Sphere(3)));
+	// Box under them
+	staticObjects.push_back(new WorldObject({ 0,-10,0 }, Vector3Zero(), PINK, new OBB({ 4, 4, 4 })));
 
 
-
+	// Spawn points for players
 	spawnPositions.push_back({ 30, -10, 30 });
 	spawnPositions.push_back({ -30, -10, 30 });
 	spawnPositions.push_back({ 30, -10, -30 });
@@ -57,42 +67,73 @@ void CustomServer::update()
 	for (RakNet::Packet* packet = peerInterface->Receive(); packet; peerInterface->DeallocatePacket(packet),
 		packet = peerInterface->Receive())
 	{
+		// Pass all packets through the system
 		Server::processSystemMessage(packet);
-
-
-		//custom messages
 	}
 
-
+	// Get system time before it gets updated
 	float deltaTime = (RakNet::GetTime() - Server::getTime()) * 0.001f;
+	Server::systemUpdate();
 
-	//update client objects. this needs to be done before system update because this resets contact points
-	//because client objects are only updated when input is receved, if a client stalls for a couple seconds the velocity due to gravity will build up
+	// Update client objects
 	for (auto& it : clientObjects)
 	{
 		((PlayerObject*)it.second)->update(deltaTime);
 	}
-
-
-	Server::systemUpdate();
-
-
-	//custom logic
-
-	
-
 }
 
 
-void CustomServer::createExplosion(const raylib::Vector3& center, float radius, float damage)
+void CustomServer::respawnPlayer(unsigned int clientID)
 {
-	for (auto& it : clientObjects)
+	// Get a spawn position
+	raylib::Vector3 spawnPos;
+	for (auto& pos : spawnPositions)
 	{
-		raylib::Vector3 dir = it.second->getPosition() - center;
+		// Check if any other clients are close to the spawn point
+		bool isFree = true;
+		for (auto& obj : clientObjects)
+		{
+			if (pos.Distance(obj.second->getPosition()) < 15)
+			{
+				isFree = false;
+				break;
+			}
+		}
+
+		// No clients are close, so use it
+		if (isFree)
+		{
+			spawnPos = pos;
+			break;
+		}
+	}
+
+
+	// Respawn the player, and message clients
+	((PlayerObject*)clientObjects[clientID])->respawn(spawnPos);
+	RakNet::BitStream bs;
+	bs.Write((RakNet::MessageID)ID_SERVER_RESPAWN_PLAYER);
+	bs.Write(clientID);
+	bs.Write(spawnPos);
+	peerInterface->Send(&bs, HIGH_PRIORITY, RELIABLE, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+}
+
+void CustomServer::createExplosion(const raylib::Vector3& center, float radius, float damage, unsigned int ownerID)
+{
+	// Send message to create an explosion effect. Unreliable because its not essential
+	RakNet::BitStream bs;
+	bs.Write((RakNet::MessageID)ID_SERVER_CREATE_EXPLOSION);
+	bs.Write(center);
+	bs.Write(radius);
+	peerInterface->Send(&bs, MEDIUM_PRIORITY, UNRELIABLE, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+
+	for (auto& obj : clientObjects)
+	{
+		raylib::Vector3 dir = obj.second->getPosition() - center;
 		float dist = dir.Length();
 
 		// Players should all have spheres, so subtract the radius to get dist to closest point
-		Sphere* col = dynamic_cast<Sphere*>(it.second->getCollider());
+		Sphere* col = dynamic_cast<Sphere*>(obj.second->getCollider());
 		if (col)
 		{
 			dist -= col->getRadius();
@@ -101,13 +142,26 @@ void CustomServer::createExplosion(const raylib::Vector3& center, float radius, 
 
 		if (dist < radius)
 		{
-			it.second->applyForce(dir.Normalize() * 20, Vector3Zero());
+			// Apply force to the object away from the explosion
+			obj.second->applyForce(dir.Normalize() * 20, Vector3Zero());
 
-			//damage
+			// Dont damage the player that fired the rocket
+			if (obj.second->getID() == ownerID)
+			{
+				continue;
+			}
+
+
+			// Damage the object, and message clients
+			((PlayerObject*)obj.second)->dealDamage(damage);
+			RakNet::BitStream bs;
+			bs.Write((RakNet::MessageID)ID_SERVER_UPDATE_HEALTH);
+			bs.Write(obj.first);
+			bs.Write(damage);
+			peerInterface->Send(&bs, HIGH_PRIORITY, RELIABLE, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 		}
 	}
 }
-
 
 
 GameObject* CustomServer::gameObjectFactory(unsigned int typeID, unsigned int objectID, const PhysicsState& state, RakNet::BitStream& bsIn)
@@ -116,19 +170,20 @@ GameObject* CustomServer::gameObjectFactory(unsigned int typeID, unsigned int ob
 	{
 	case 1000:
 	{
+		// Create rocket
 		float radius, damage;
+		unsigned int ownerID;
 		bsIn.Read(radius);
 		bsIn.Read(damage);
+		bsIn.Read(ownerID);
 
-		Rocket* obj = new Rocket(state, objectID, new Sphere(.5f), radius, damage);
+		Rocket* obj = new Rocket(state, objectID, new Sphere(.5f), radius, damage, ownerID);
 		obj->setServer(this);
 		return obj;
 	}
 
 
-
-
-		//invalid ID
+		// Invalid ID
 	default:
 		return nullptr;
 	}
@@ -180,6 +235,5 @@ ClientObject* CustomServer::clientObjectFactory(unsigned int clientID)
 
 	PlayerObject* obj = new PlayerObject(PhysicsState(spawnPos, { 0,0,0 }), clientID, new Sphere(5), 100, color, .7f);
 	obj->setServer(this);
-
 	return obj;
 }

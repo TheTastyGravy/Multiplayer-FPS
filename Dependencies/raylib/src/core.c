@@ -1759,7 +1759,7 @@ void EndDrawing(void)
         if (((gifFramesCounter/15)%2) == 1)
         {
             DrawCircle(30, CORE.Window.screen.height - 20, 10, RED);
-            DrawText("RECORDING", 50, CORE.Window.screen.height - 25, 10, MAROON);
+            RayDrawText("RECORDING", 50, CORE.Window.screen.height - 25, 10, MAROON);
         }
 
         rlglDraw();                 // Draw RECORDING message

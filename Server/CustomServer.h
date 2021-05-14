@@ -5,6 +5,8 @@
 class CustomServer : public Server
 {
 public:
+	CustomServer();
+	virtual ~CustomServer();
 
 
 	void startup(const char* ip, unsigned short port);
@@ -12,8 +14,10 @@ public:
 	void update();
 
 
-	void createExplosion(const raylib::Vector3& center, float radius, float damage);
-
+	// Called by player object input action
+	void respawnPlayer(unsigned int clientID);
+	// Called by rocket collision callback
+	void createExplosion(const raylib::Vector3& center, float radius, float damage, unsigned int ownerID);
 
 protected:
 	virtual GameObject* gameObjectFactory(unsigned int typeID, unsigned int objectID, const PhysicsState& state, RakNet::BitStream& bsIn) override;
@@ -21,7 +25,7 @@ protected:
 
 
 
+protected:
 	// Posible positions that a player can be spawned
 	std::vector<raylib::Vector3> spawnPositions;
-
 };

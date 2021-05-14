@@ -817,13 +817,13 @@ void UnloadFont(Font font)
 // NOTE: Uses default font
 void DrawFPS(int posX, int posY)
 {
-    DrawText(TextFormat("%2i FPS", GetFPS()), posX, posY, 20, LIME);
+    RayDrawText(TextFormat("%2i FPS", GetFPS()), posX, posY, 20, LIME);
 }
 
 // Draw text (using default font)
 // NOTE: fontSize work like in any drawing program but if fontSize is lower than font-base-size, then font-base-size is used
 // NOTE: chars spacing is proportional to fontSize
-void DrawText(const char *text, int posX, int posY, int fontSize, Color color)
+void RayDrawText(const char *text, int posX, int posY, int fontSize, Color color)
 {
     // Check if default font has been loaded
     if (GetFontDefault().texture.id != 0)

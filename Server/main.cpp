@@ -4,16 +4,13 @@
 
 int main()
 {
-
 	CustomServer server;
-
-	server.startup(0, 5456);
-
+	server.startup("192.168.56.1", 5456);
 
 	while (true)
 	{
 		server.update();
-		//update 30 times per second
+		// Run at 30 hertz
 		std::this_thread::sleep_for(std::chrono::milliseconds(33));
 	}
 

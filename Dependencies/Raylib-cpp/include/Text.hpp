@@ -26,7 +26,7 @@ RLCPPAPI inline void DrawText(
         int posY,
         int fontSize,
         ::Color color) {
-    ::DrawText(title.c_str(), posX, posY, fontSize, color);
+    ::RayDrawText(title.c_str(), posX, posY, fontSize, color);
 }
 
 /**
