@@ -9,7 +9,7 @@ int main()
 	raylib::Camera3D cam(raylib::Vector3(0, 0, 50), raylib::Vector3(0, 0, 0), raylib::Vector3(0, 1, 0), 60, CAMERA_PERSPECTIVE);
 
 	CustomClient client;
-	client.startup("192.168.56.1", 5456);
+	client.startup("127.0.0.1", 5456);
 
 
 	while (!window.ShouldClose())

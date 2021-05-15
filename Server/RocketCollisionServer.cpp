@@ -2,7 +2,7 @@
 #include "CustomServer.h"
 
 
-void Rocket::server_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
+void Rocket::onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
 {
 	if (!server)
 	{
@@ -23,6 +23,3 @@ void Rocket::server_onCollision(StaticObject* other, raylib::Vector3 contact, ra
 	// Destroy this object
 	server->destroyObject(objectID);
 }
-
-void Rocket::client_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
-{}

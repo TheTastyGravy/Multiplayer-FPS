@@ -5,7 +5,7 @@
 int main()
 {
 	CustomServer server;
-	server.startup("192.168.56.1", 5456);
+	server.startup(0, 5456);
 
 	while (true)
 	{

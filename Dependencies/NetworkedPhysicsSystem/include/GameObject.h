@@ -53,7 +53,7 @@ public:
 	/// <param name="collisionNormal">The normal in world space relitive to this object</param>
 	/// <param name="isOnServer">Used to determine which collision callbacks to use</param>
 	/// <param name="shouldAffectOther">Should the other object have forces applied?</param>
-	void resolveCollision(StaticObject* otherObject, const raylib::Vector3& contact, const raylib::Vector3& collisionNormal, bool isOnServer = true, bool shouldAffectOther = true);
+	void resolveCollision(StaticObject* otherObject, const raylib::Vector3& contact, const raylib::Vector3& collisionNormal, bool shouldAffectOther = true);
 
 	/// <summary>
 	/// Update this objects physics state, then extrapolate to the current time
@@ -94,10 +94,12 @@ public:
 
 
 protected:
-	// Event called after resolving a collision. Only called on the server
-	virtual void server_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) {};
-	// Event called after resolving a collision. Only called on clients
-	virtual void client_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) {};
+	/// <summary>
+	/// Event called after resolving a collision
+	/// </summary>
+	/// <param name="contact">The contact point in world space</param>
+	/// <param name="normal">The collision normal relitive to this object</param>
+	virtual void onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) {}
 
 
 

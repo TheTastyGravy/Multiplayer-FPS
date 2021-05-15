@@ -2,10 +2,7 @@
 #include "CustomClient.h"
 
 
-void Rocket::server_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
-{}
-
-void Rocket::client_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
+void Rocket::onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
 {
 	if (!client)
 	{

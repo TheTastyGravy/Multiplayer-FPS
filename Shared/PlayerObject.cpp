@@ -118,16 +118,7 @@ void PlayerObject::respawn(raylib::Vector3 position)
 }
 
 
-void PlayerObject::server_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
-{
-	// If the collision normal is close to down, we are on ground
-	if (normal.y < -0.85f)
-	{
-		groundTimmer = 0.1f;
-	}
-}
-
-void PlayerObject::client_onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
+void PlayerObject::onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
 {
 	// If the collision normal is close to down, we are on ground
 	if (normal.y < -0.85f)
