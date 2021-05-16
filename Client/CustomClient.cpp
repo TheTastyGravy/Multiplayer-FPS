@@ -1,6 +1,7 @@
 #include "CustomClient.h"
 #include <GetTime.h>
-#include <sstream>	// Used to format strings for drawing text
+#include <sstream>		// Used to format strings for drawing text
+#include <algorithm>	// Used for sort
 #include "../Shared/PlayerObject.h"
 #include "../Shared/Rocket.h"
 #include "../Shared/WorldObject.h"
@@ -13,11 +14,20 @@
 CustomClient::CustomClient() : 
 	Client()
 {
-	raylib::Image image1 = GenImagePerlinNoise(100, 100, 0, 0, 10);
-	ImageAlphaMask(&image1, GenImageGradientRadial(100, 100, 0.2f, WHITE, BLANK));
+	// Create grayscale image that is faded around the edge
+	raylib::Image image = GenImagePerlinNoise(200, 200, 0, 0, 10);
+	image.Format(UNCOMPRESSED_GRAY_ALPHA);
+	ImageAlphaMask(&image, GenImageGradientRadial(200, 200, 0.2f, WHITE, BLANK));
+	
+	// Convert brightness to alpha
+	for (int i = 0; i < image.height * image.width * 4; i += 2)
+	{
+		((unsigned char*)image.data)[i + 1] = min(((unsigned char*)image.data)[i], ((unsigned char*)image.data)[i + 1]);
+		((unsigned char*)image.data)[i] = 255;
+	}
 
-	tex = LoadTextureFromImage(image1);
-	image1.Unload();
+	tex = LoadTextureFromImage(image);
+	image.Unload();
 }
 
 CustomClient::~CustomClient()
@@ -129,13 +139,20 @@ void CustomClient::draw3D(raylib::Camera3D& cam)
 	}
 
 
+	// Sort particles furthest from the player to the closest for draw order
+	auto comp = [this](Particle p1, Particle p2) -> bool
+	{
+		float dist1 = Vector3LengthSqr(p1.position - myClientObject->getPosition());
+		float dist2 = Vector3LengthSqr(p2.position - myClientObject->getPosition());
+		return dist1 > dist2;
+	};
+	std::sort(particles.begin(), particles.end(), comp);
 	// Draw particles
 	for (auto& it : particles)
 	{
-		rlSetBlendMode(1, 1, BLEND_MULTIPLIED);
 		DrawBillboard(cam, tex, it.position, 2, it.color);
-		rlSetBlendMode(1, 0, BLEND_ALPHA);
 	}
+
 
 	// If we have a client object, update the camera for first person
 	if (myClientObject)
@@ -245,7 +262,7 @@ void CustomClient::createExplosionEffect(RakNet::BitStream& bsIn)
 		velocity.z = GetRandomValue(-100, 100) * 0.01f;
 		velocity = velocity.Normalize() * GetRandomValue(0, 100) * 0.05f;
 
-		particles.push_back({ position + offset + raylib::Vector3(0,1,0), velocity, {255, 100, 0, 150}, .5f + GetRandomValue(-50, 50) * 0.005f });
+		particles.push_back({ position + offset + raylib::Vector3(0,1,0), velocity, {255, 50, 0, 150}, .5f + GetRandomValue(-50, 50) * 0.005f });
 	}
 }
 
