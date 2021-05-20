@@ -61,7 +61,7 @@ void CustomServer::startup(const char* ip, unsigned short port)
 	// Box under them
 	staticObjects.push_back(new WorldObject({ 0,-10,0 }, Vector3Zero(), PINK, new OBB({ 4, 4, 4 })));
 	// Kill zone below level
-	staticObjects.push_back(new KillZone({ 0,-40,0 }, Vector3Zero(), new OBB({ 500, 5, 500 })));
+	staticObjects.push_back(new KillZone({ 0,-250,0 }, Vector3Zero(), new OBB({ 500, 200, 500 })));
 	
 
 	// Spawn points for players

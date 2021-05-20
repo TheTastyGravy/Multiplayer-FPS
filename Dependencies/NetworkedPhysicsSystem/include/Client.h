@@ -105,4 +105,7 @@ private:
 
 	// Buffer of <time of input, state at time, player input>
 	RingBuffer<std::tuple<RakNet::Time, PhysicsState, Input>> inputBuffer;
+
+	// Object IDs that have been destroied, but not created. Caused by latency variance
+	std::vector<unsigned int> objectIDBlacklist;
 };
