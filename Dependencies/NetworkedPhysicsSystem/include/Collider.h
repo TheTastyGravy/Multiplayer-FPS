@@ -11,6 +11,8 @@ class Collider
 public:
 	// Calculate the moment of inertia tensor of an object with this colliders shape
 	virtual raylib::Matrix calculateInertiaTensor(float mass) const = 0;
+	// Get radius of a sphere containing this collider
+	virtual float getBoundingSphereRadius() const = 0;
 
 protected:
 	// Used by StaticObject.serialize to write its collider. Because 

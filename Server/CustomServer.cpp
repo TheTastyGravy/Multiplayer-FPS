@@ -43,8 +43,14 @@ void CustomServer::startup(const char* ip, unsigned short port)
 
 
 
-	// Ground
-	staticObjects.push_back(new WorldObject({ 0,-20,0 }, Vector3Zero(), GREEN, new OBB({ 100, 5, 100 })));
+	// Ground and walls
+	for (int x = -11; x <= 11; x++)
+	{
+		for (int y = -11; y <= 11; y++)
+		{
+			staticObjects.push_back(new WorldObject({ x*10.f, (abs(x) == 11 || abs(y) == 11 ? -15.f : -20.f), y*10.f }, Vector3Zero(), (x+y) % 2 == 0 ? GREEN : DARKGREEN, new OBB({ 5, 5, 5 })));
+		}
+	}
 
 	// Random spheres in the sky
 	staticObjects.push_back(new WorldObject({ 5,0,5 }, Vector3Zero(), BLUE, new Sphere(3)));

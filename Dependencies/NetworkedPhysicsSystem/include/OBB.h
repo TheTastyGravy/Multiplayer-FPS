@@ -26,7 +26,9 @@ public:
 			0, 0, 0, 1
 		};
 	}
-
+	
+	float getBoundingSphereRadius() const { return halfExtents.Length(); }
+	
 	raylib::Vector3 getHalfExtents() const { return halfExtents; }
 
 protected:
