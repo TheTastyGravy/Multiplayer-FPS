@@ -3,6 +3,7 @@
 #include "../Shared/Rocket.h"
 #include "../Shared/WorldObject.h"
 #include "../Shared/CustomGameMessages.h"
+#include "../Shared/KillZone.h"
 
 #include <iostream>
 
@@ -59,7 +60,9 @@ void CustomServer::startup(const char* ip, unsigned short port)
 	staticObjects.push_back(new WorldObject({ -5,0,-5 }, Vector3Zero(), PURPLE, new Sphere(3)));
 	// Box under them
 	staticObjects.push_back(new WorldObject({ 0,-10,0 }, Vector3Zero(), PINK, new OBB({ 4, 4, 4 })));
-
+	// Kill zone below level
+	staticObjects.push_back(new KillZone({ 0,-40,0 }, Vector3Zero(), new OBB({ 500, 5, 500 })));
+	
 
 	// Spawn points for players
 	spawnPositions.push_back({ 30, -10, 30 });

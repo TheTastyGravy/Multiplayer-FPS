@@ -6,6 +6,7 @@
 #include "../Shared/Rocket.h"
 #include "../Shared/WorldObject.h"
 #include "../Shared/CustomGameMessages.h"
+#include "../Shared/KillZone.h"
 #include "rlgl.h"
 
 #include <iostream>
@@ -320,6 +321,11 @@ StaticObject* CustomClient::staticObjectFactory(unsigned int typeID, ObjectInfo&
 		raylib::Color color;
 		bsIn.Read(color);
 		return new WorldObject(objectInfo.state.position, objectInfo.state.rotation, color, objectInfo.collider);
+	}
+	case 2:
+	{
+		// Kill zone
+		return new KillZone(objectInfo.state.position, objectInfo.state.rotation, objectInfo.collider);
 	}
 
 

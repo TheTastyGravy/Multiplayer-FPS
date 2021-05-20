@@ -116,13 +116,3 @@ void PlayerObject::respawn(raylib::Vector3 position)
 	this->position = position;
 	velocity = Vector3Zero();
 }
-
-
-void PlayerObject::onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
-{
-	// If the collision normal is close to down, we are on ground
-	if (normal.y < -0.85f)
-	{
-		groundTimmer = 0.1f;
-	}
-}

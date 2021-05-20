@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="KillZone.cpp" />
     <ClCompile Include="PlayerObject.cpp" />
     <ClCompile Include="Rocket.cpp" />
     <ClCompile Include="WorldObject.cpp" />
@@ -26,6 +27,7 @@
   <ItemGroup>
     <ClInclude Include="CustomGameMessages.h" />
     <ClInclude Include="IDrawable.h" />
+    <ClInclude Include="KillZone.h" />
     <ClInclude Include="PlayerObject.h" />
     <ClInclude Include="Rocket.h" />
     <ClInclude Include="WorldObject.h" />

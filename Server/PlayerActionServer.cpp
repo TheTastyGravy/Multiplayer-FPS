@@ -44,3 +44,20 @@ void PlayerObject::processInputAction(const Input& input, RakNet::Time timeStamp
 		server->createObject(1000, state, timeStamp, &bs);
 	}
 }
+
+void PlayerObject::onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal)
+{
+	// If colliding with a kill zone, respawn
+	if (other->getTypeID() == 2 && server != nullptr)
+	{
+		((CustomServer*)server)->respawnPlayer(objectID);
+		return;
+	}
+
+
+	// If the collision normal is close to down, we are on ground
+	if (normal.y < -0.85f)
+	{
+		groundTimmer = 0.1f;
+	}
+}

@@ -32,7 +32,7 @@ public:
 	float isDead() const { return health <= 0; }
 
 protected:
-	virtual void onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) override;
+	virtual void onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) override;	// Defined seperatly for client and server
 
 
 

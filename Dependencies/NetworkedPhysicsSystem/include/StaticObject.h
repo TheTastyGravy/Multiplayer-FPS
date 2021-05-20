@@ -25,6 +25,7 @@ public:
 	virtual void serialize(RakNet::BitStream& bsInOut) const;
 
 
+	int getTypeID() const { return typeID; }
 	// If an object is static, it does not have physics
 	bool isStatic() const;
 
