@@ -101,6 +101,11 @@ protected:
 	/// <param name="normal">The collision normal relitive to this object</param>
 	virtual void onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) {}
 
+	/// <summary>
+	/// Called at the start of every physicsStep. Should not rely on external game state, as physicsStep is used in prediction
+	/// </summary>
+	virtual void fixedUpdate(float timeStep) {};
+
 
 
 protected:

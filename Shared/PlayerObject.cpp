@@ -70,11 +70,6 @@ PhysicsState PlayerObject::processInputMovement(const Input& input) const
 
 void PlayerObject::update(float deltaTime)
 {
-	// Apply gravity. This is a bad place for it, as if no inputs are receved by the server for a while, delta 
-	// time will build up and can cause the player to fall through the ground
-	applyForce(raylib::Vector3(0, -30, 0) * getMass() * deltaTime, Vector3Zero());
-
-
 	// Decrement the timmer
 	groundTimmer -= deltaTime;
 }
@@ -115,4 +110,11 @@ void PlayerObject::respawn(raylib::Vector3 position)
 	health = 100;
 	this->position = position;
 	velocity = Vector3Zero();
+}
+
+
+void PlayerObject::fixedUpdate(float timeStep)
+{
+	// Apply gravity
+	applyForce(raylib::Vector3(0, -30, 0) * getMass() * timeStep, Vector3Zero());
 }

@@ -34,6 +34,8 @@ public:
 protected:
 	virtual void onCollision(StaticObject* other, raylib::Vector3 contact, raylib::Vector3 normal) override;	// Defined seperatly for client and server
 
+	virtual void fixedUpdate(float timeStep) override;
+
 
 
 protected:
