@@ -31,10 +31,6 @@ void CustomServer::startup(const char* ip, unsigned short port)
 	// Automatic pinging for timestamping
 	peerInterface->SetOccasionalPing(true);
 
-	peerInterface->ApplyNetworkSimulator(0.02f, 50, 5);
-	//peerInterface->ApplyNetworkSimulator(0.05f, 200, 30);
-	//peerInterface->ApplyNetworkSimulator(0.2f, 400, 100);
-
 	// Output state of server
 	if (peerInterface->IsActive())
 	{
